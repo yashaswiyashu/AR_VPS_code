@@ -16,7 +16,21 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(express.static('public'))
-app.get('/', (req,res) => {
+app.get('/', async (req,res) => {
+    var ipData;
+    var IP;
+    await axios.get('https://ipapi.co/json/')
+    .then(resp => ipData = resp.data)
+    .catch(err=> console.log(err))
+    IP = req.ip;
+    await axios.post('http://localhost:4000/dc/userData', {
+        IP: IP,
+        Country: ipData.country_name,
+        Region: ipData.region,
+        City: ipData.city,
+        Latitude: ipData.latitude,
+        Longitude: ipData.longitude,
+    }).then(res => res).catch(err => console.log(err))
     res.sendfile('public/index')
 })
 app.get('/get', async (req, res) => {
